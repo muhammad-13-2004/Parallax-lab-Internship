@@ -36,7 +36,6 @@ export function ProductCard({ product, layout = "grid" }: ProductCardProps) {
               : "aspect-square w-full",
           )}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.image}
             alt={product.title}

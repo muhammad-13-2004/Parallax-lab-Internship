@@ -42,7 +42,6 @@ export default async function ProductPage({ params }: PageProps) {
       </nav>
       <div className="grid gap-10 lg:grid-cols-2">
         <div className="overflow-hidden rounded-xl bg-surface shadow-border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.image}
             alt={product.title}

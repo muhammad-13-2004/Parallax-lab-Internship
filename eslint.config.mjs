@@ -25,6 +25,7 @@ export default tseslint.config(
       "server/**",
       "migrations/**",
       "public/mockServiceWorker.js",
+      "next-env.d.ts",
     ],
   },
   js.configs.recommended,

@@ -29,23 +29,20 @@ export function CatalogToolbar({
   return (
     <div className="flex flex-col gap-5">
       <SearchField value={query} onChange={onQueryChange} />
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <CategoryFilter
-          categories={categories}
-          value={category}
-          onChange={onCategoryChange}
-        />
-        <div className="flex flex-wrap items-center justify-between gap-3 lg:justify-end">
-          <p className="text-sm text-muted-foreground" aria-live="polite">
-            Showing{" "}
-            <span className="font-medium tabular-nums text-foreground">
-              {resultCount}
-            </span>{" "}
-            of{" "}
-            <span className="tabular-nums">{totalCount}</span> products
-          </p>
-          <ViewToggle value={view} onChange={onViewChange} />
-        </div>
+      <CategoryFilter
+        categories={categories}
+        value={category}
+        onChange={onCategoryChange}
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          Showing{" "}
+          <span className="font-medium tabular-nums text-foreground">
+            {resultCount}
+          </span>{" "}
+          of <span className="tabular-nums">{totalCount}</span> products
+        </p>
+        <ViewToggle value={view} onChange={onViewChange} />
       </div>
     </div>
   );

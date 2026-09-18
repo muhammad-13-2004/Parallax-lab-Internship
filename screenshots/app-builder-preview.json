@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Northline",
+      "hasCanvas": false,
+      "bodyTextLen": 335,
+      "bodyTextHash": "828a5d2a81884203cfea5a817fd54d2f24e8d49d9fa96ba1efee80477348c580",
+      "bodyTextPrefix": "Skip to catalog Northline Catalog Cart Checkout CATALOG Consider",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Northline",
+      "hasCanvas": false,
+      "bodyTextLen": 334,
+      "bodyTextHash": "76613c858e1c974dc68352eea9a940031c1158d81e9a800e1f9f2abb81032313",
+      "bodyTextPrefix": "Skip to catalog Northline Catalog Cart Checkout CATALOG Consider",
+      "horizontalOverflow": true,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

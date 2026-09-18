@@ -43,7 +43,6 @@ export default function CartPage() {
                 key={item.id}
                 className="flex flex-col gap-4 rounded-xl bg-card p-4 shadow-border sm:flex-row sm:items-center"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.image}
                   alt={item.title}

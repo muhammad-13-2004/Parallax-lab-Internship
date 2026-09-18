@@ -13,7 +13,8 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label="Toggle color theme"
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       <span className="relative size-5">
         <Sun
