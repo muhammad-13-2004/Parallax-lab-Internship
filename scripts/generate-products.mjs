@@ -1,0 +1,709 @@
+import { writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const img = (id) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&h=900&q=80`;
+
+const products = [
+  {
+    id: "product-001",
+    title: "Aero Wireless Headphones",
+    description:
+      "Over-ear wireless headphones with active noise cancellation, 32-hour battery life, and a breathable knit headband for all-day listening.",
+    price: 229.0,
+    category: "Electronics",
+    image: img("photo-1505740420928-5e560c06d30e"),
+    variants: [{ name: "Color", options: ["Graphite", "Ivory", "Sage"] }],
+    stock: 24,
+  },
+  {
+    id: "product-002",
+    title: "Field Mechanical Keyboard",
+    description:
+      "Hot-swappable 75% mechanical keyboard with quiet tactile switches, aluminum case, and programmable keys for writing and studio work.",
+    price: 189.0,
+    category: "Electronics",
+    image: img("photo-1587829741301-dc798b83add3"),
+    variants: [
+      { name: "Switch", options: ["Tactile", "Linear"] },
+      { name: "Color", options: ["Black", "Cream"] },
+    ],
+    stock: 18,
+  },
+  {
+    id: "product-003",
+    title: "Northline 27-inch Display",
+    description:
+      "A 4K IPS monitor with a matte anti-glare coating, USB-C charging, and slim bezels designed for writing, photo editing, and code.",
+    price: 449.0,
+    category: "Electronics",
+    image: img("photo-1527443224154-0dd4c3eaeb7a"),
+    variants: [{ name: "Stand", options: ["Standard", "Arm mount"] }],
+    stock: 11,
+  },
+  {
+    id: "product-004",
+    title: "Harbor Bluetooth Speaker",
+    description:
+      "Portable speaker with a warm midrange, 14-hour battery, and a weather-ready shell for kitchens, desks, and weekend travel.",
+    price: 129.0,
+    category: "Electronics",
+    image: img("photo-1608043152269-4237b3347556"),
+    variants: [{ name: "Color", options: ["Slate", "Sand", "Olive"] }],
+    stock: 32,
+  },
+  {
+    id: "product-005",
+    title: "Quiet Line Earbuds",
+    description:
+      "In-ear buds with adaptive noise control, wireless charging case, and a secure fit for commuting and workouts.",
+    price: 159.0,
+    category: "Electronics",
+    image: img("photo-1590658268037-2cf149335815"),
+    variants: [{ name: "Color", options: ["Black", "White"] }],
+    stock: 40,
+  },
+  {
+    id: "product-006",
+    title: "Precision Wireless Mouse",
+    description:
+      "Quiet-click wireless mouse with a low-profile shape, USB-C charging, and a 4000 DPI sensor for long editing sessions.",
+    price: 79.0,
+    category: "Electronics",
+    image: img("photo-1527814050087-3793815479db"),
+    variants: [{ name: "Color", options: ["Graphite", "Ash"] }],
+    stock: 27,
+  },
+  {
+    id: "product-007",
+    title: "Meridian Smartwatch",
+    description:
+      "A slim analog-digital watch with heart-rate tracking, sleep insights, and a five-day battery in a brushed steel case.",
+    price: 279.0,
+    category: "Electronics",
+    image: img("photo-1523275335680-37898b6baf30"),
+    variants: [
+      { name: "Case", options: ["Steel", "Matte black"] },
+      { name: "Band", options: ["Leather", "Sport"] },
+    ],
+    stock: 15,
+  },
+  {
+    id: "product-008",
+    title: "Field Camera Compact",
+    description:
+      "Pocket compact camera with a fast prime lens, in-body stabilization, and JPEG color science tuned for travel diaries.",
+    price: 699.0,
+    category: "Electronics",
+    image: img("photo-1516035069371-29a1b244cc32"),
+    variants: [{ name: "Color", options: ["Black", "Silver"] }],
+    stock: 8,
+  },
+  {
+    id: "product-009",
+    title: "Ultralight Notebook",
+    description:
+      "13-inch notebook with an anti-glare display, all-day battery, and a quiet keyboard for writing on the move.",
+    price: 1299.0,
+    category: "Electronics",
+    image: img("photo-1517336714731-489689fd1ca8"),
+    variants: [
+      { name: "Memory", options: ["16 GB", "32 GB"] },
+      { name: "Storage", options: ["512 GB", "1 TB"] },
+    ],
+    stock: 6,
+  },
+  {
+    id: "product-010",
+    title: "Studio Tablet 11",
+    description:
+      "A light 11-inch tablet with a paper-like display coating, stylus support, and speakers tuned for film and music.",
+    price: 549.0,
+    category: "Electronics",
+    image: img("photo-1561154464-82e9adf32764"),
+    variants: [{ name: "Storage", options: ["128 GB", "256 GB"] }],
+    stock: 14,
+  },
+  {
+    id: "product-011",
+    title: "Archive Portable SSD",
+    description:
+      "2TB USB-C solid-state drive in a milled aluminum shell. Fast enough for photo libraries, quiet enough for the desk.",
+    price: 189.0,
+    category: "Electronics",
+    image: img("photo-1531492746076-161ca2bcad4e"),
+    variants: [{ name: "Capacity", options: ["1 TB", "2 TB"] }],
+    stock: 22,
+  },
+  {
+    id: "product-012",
+    title: "Desk Webcam HD",
+    description:
+      "1080p webcam with a wide sensor, dual mics, and a discreet privacy shutter for daily calls.",
+    price: 89.0,
+    category: "Electronics",
+    image: img("photo-1614624532983-4ce03382d63d"),
+    variants: [{ name: "Mount", options: ["Monitor clip", "Tripod"] }],
+    stock: 19,
+  },
+  {
+    id: "product-013",
+    title: "Merino Crewneck",
+    description:
+      "Fine-gauge merino crewneck that layers cleanly under a coat. Naturally odor-resistant and machine washable on cold.",
+    price: 128.0,
+    category: "Clothing",
+    image: img("photo-1434389677669-e08b4cac3105"),
+    variants: [
+      { name: "Size", options: ["XS", "S", "M", "L", "XL"] },
+      { name: "Color", options: ["Oatmeal", "Navy", "Forest"] },
+    ],
+    stock: 21,
+  },
+  {
+    id: "product-014",
+    title: "Oxford Button-Down",
+    description:
+      "A classic oxford shirt in organic cotton with a relaxed collar, gently curved hem, and mother-of-pearl buttons.",
+    price: 98.0,
+    category: "Clothing",
+    image: img("photo-1596755094514-f87e34085b2c"),
+    variants: [
+      { name: "Size", options: ["S", "M", "L", "XL"] },
+      { name: "Color", options: ["White", "Sky", "Stripe"] },
+    ],
+    stock: 30,
+  },
+  {
+    id: "product-015",
+    title: "Tapered Chino Trousers",
+    description:
+      "Soft-stretch chinos with a tapered leg, hidden elastic at the waist, and a clean front for weekday wear.",
+    price: 118.0,
+    category: "Clothing",
+    image: img("photo-1473966968600-fa801b869a1a"),
+    variants: [
+      { name: "Size", options: ["28", "30", "32", "34", "36"] },
+      { name: "Color", options: ["Khaki", "Navy", "Olive"] },
+    ],
+    stock: 26,
+  },
+  {
+    id: "product-016",
+    title: "Linen Overshirt",
+    description:
+      "Mid-weight linen overshirt with patch pockets and a camp collar. Wear open over a tee or closed as a light jacket.",
+    price: 148.0,
+    category: "Clothing",
+    image: img("photo-1591047139829-d91aecb6caea"),
+    variants: [
+      { name: "Size", options: ["S", "M", "L", "XL"] },
+      { name: "Color", options: ["Natural", "Clay", "Ink"] },
+    ],
+    stock: 16,
+  },
+  {
+    id: "product-017",
+    title: "Heavyweight Hoodie",
+    description:
+      "Loopback cotton hoodie with a double-lined hood, kangaroo pocket, and a short rib hem that sits cleanly at the hip.",
+    price: 110.0,
+    category: "Clothing",
+    image: img("photo-1556821840-3a63f95609a7"),
+    variants: [
+      { name: "Size", options: ["S", "M", "L", "XL"] },
+      { name: "Color", options: ["Heather", "Black", "Bay"] },
+    ],
+    stock: 34,
+  },
+  {
+    id: "product-018",
+    title: "Wool Overcoat",
+    description:
+      "Single-breasted wool coat with a notched lapel, interior pocket, and a knee-length cut for winter commuting.",
+    price: 398.0,
+    category: "Clothing",
+    image: img("photo-1539533018447-63fcce2678e3"),
+    variants: [
+      { name: "Size", options: ["S", "M", "L", "XL"] },
+      { name: "Color", options: ["Charcoal", "Camel"] },
+    ],
+    stock: 9,
+  },
+  {
+    id: "product-019",
+    title: "Organic Cotton Tee",
+    description:
+      "A mid-weight tee with a set-in sleeve, bound collar, and a cut that holds its shape after washing.",
+    price: 38.0,
+    category: "Clothing",
+    image: img("photo-1521572163474-6864f9cf17ab"),
+    variants: [
+      { name: "Size", options: ["XS", "S", "M", "L", "XL"] },
+      { name: "Color", options: ["White", "Bone", "Ink"] },
+    ],
+    stock: 48,
+  },
+  {
+    id: "product-020",
+    title: "Unstructured Blazer",
+    description:
+      "Soft-shoulder blazer in a traceable wool blend. Unlined for movement, with patch pockets and a single button.",
+    price: 268.0,
+    category: "Clothing",
+    image: img("photo-1594938291221-5c78ae08d6b0"),
+    variants: [
+      { name: "Size", options: ["S", "M", "L", "XL"] },
+      { name: "Color", options: ["Navy", "Taupe"] },
+    ],
+    stock: 12,
+  },
+  {
+    id: "product-021",
+    title: "Leather Derby Shoes",
+    description:
+      "Goodyear-welted derbies in vegetable-tanned leather with a stacked leather heel and a comfortable almond toe.",
+    price: 248.0,
+    category: "Shoes",
+    image: img("photo-1614252235816-8c862c1a8978"),
+    variants: [
+      { name: "Size", options: ["7", "8", "9", "10", "11", "12"] },
+      { name: "Color", options: ["Dark brown", "Black"] },
+    ],
+    stock: 14,
+  },
+  {
+    id: "product-022",
+    title: "Canvas Court Sneakers",
+    description:
+      "Low-profile court sneakers with organic canvas uppers, a gum outsole, and a cushioned insole for all-day walking.",
+    price: 98.0,
+    category: "Shoes",
+    image: img("photo-1542291026-7eec264c27ff"),
+    variants: [
+      { name: "Size", options: ["7", "8", "9", "10", "11", "12"] },
+      { name: "Color", options: ["White", "Navy", "Rust"] },
+    ],
+    stock: 36,
+  },
+  {
+    id: "product-023",
+    title: "Trail Runners",
+    description:
+      "Lightweight trail shoes with a rock plate, recycled mesh upper, and a grippy outsole for weekend paths.",
+    price: 158.0,
+    category: "Shoes",
+    image: img("photo-1460353581641-37baddab0fa2"),
+    variants: [
+      { name: "Size", options: ["7", "8", "9", "10", "11", "12"] },
+      { name: "Color", options: ["Slate", "Moss"] },
+    ],
+    stock: 20,
+  },
+  {
+    id: "product-024",
+    title: "Suede Loafers",
+    description:
+      "Unlined suede penny loafers with a flexible leather sole. Easy to slip on for the office or dinner.",
+    price: 188.0,
+    category: "Shoes",
+    image: img("photo-1533867617858-e7b97e57f38c"),
+    variants: [
+      { name: "Size", options: ["7", "8", "9", "10", "11"] },
+      { name: "Color", options: ["Taupe", "Espresso"] },
+    ],
+    stock: 10,
+  },
+  {
+    id: "product-025",
+    title: "Chelsea Boots",
+    description:
+      "Pull-on Chelsea boots in oiled leather with an elastic gusset, leather lining, and a durable commando sole.",
+    price: 268.0,
+    category: "Shoes",
+    image: img("photo-1638247025967-b4e38f787b76"),
+    variants: [
+      { name: "Size", options: ["7", "8", "9", "10", "11", "12"] },
+      { name: "Color", options: ["Black", "Brown"] },
+    ],
+    stock: 13,
+  },
+  {
+    id: "product-026",
+    title: "Everyday Sneakers",
+    description:
+      "Full-grain leather sneakers with a crepe sole and a quietly padded collar. Designed to scuff in well.",
+    price: 168.0,
+    category: "Shoes",
+    image: img("photo-1549298916-b41d501d3772"),
+    variants: [
+      { name: "Size", options: ["7", "8", "9", "10", "11", "12"] },
+      { name: "Color", options: ["White", "Gum"] },
+    ],
+    stock: 25,
+  },
+  {
+    id: "product-027",
+    title: "Vegetable-Tan Belt",
+    description:
+      "A 32mm leather belt that darkens with wear. Solid brass buckle and a free last hole if you need it punched.",
+    price: 78.0,
+    category: "Accessories",
+    image: img("photo-1627123424574-724758594e93"),
+    variants: [
+      { name: "Size", options: ["30", "32", "34", "36", "38"] },
+      { name: "Color", options: ["Natural", "Black"] },
+    ],
+    stock: 28,
+  },
+  {
+    id: "product-028",
+    title: "Minimal Field Watch",
+    description:
+      "38mm field watch with a sapphire crystal, 10-bar water resistance, and a leather strap that sits flat under a cuff.",
+    price: 320.0,
+    category: "Accessories",
+    image: img("photo-1524592094714-0f2333898906"),
+    variants: [{ name: "Dial", options: ["Ivory", "Black"] }],
+    stock: 7,
+  },
+  {
+    id: "product-029",
+    title: "Merino Beanie",
+    description:
+      "Ribbed merino beanie with a snug cuff. Warm without bulk, and it recovers after packing in a coat pocket.",
+    price: 42.0,
+    category: "Accessories",
+    image: img("photo-1576871337632-b9aef4c17ab9"),
+    variants: [{ name: "Color", options: ["Charcoal", "Oatmeal", "Forest"] }],
+    stock: 33,
+  },
+  {
+    id: "product-030",
+    title: "Canvas Market Tote",
+    description:
+      "Heavy cotton canvas tote with a wide base, interior pocket, and leather handles that sit comfortably on the shoulder.",
+    price: 64.0,
+    category: "Accessories",
+    image: img("photo-1544816155-12df9643f363"),
+    variants: [{ name: "Color", options: ["Natural", "Olive", "Black"] }],
+    stock: 29,
+  },
+  {
+    id: "product-031",
+    title: "Acetate Sunglasses",
+    description:
+      "Hand-polished acetate frames with polarized lenses and a medium round shape that suits most faces.",
+    price: 148.0,
+    category: "Accessories",
+    image: img("photo-1511499767150-a48a237ac008"),
+    variants: [{ name: "Color", options: ["Tortoise", "Black", "Clear"] }],
+    stock: 17,
+  },
+  {
+    id: "product-032",
+    title: "Card Holder",
+    description:
+      "Four-pocket card holder in vegetable-tanned leather. Slim enough for a front pocket, with a quick-access slot.",
+    price: 48.0,
+    category: "Accessories",
+    image: img("photo-1627123424574-724758594e93"),
+    variants: [{ name: "Color", options: ["Tan", "Black", "Bordeaux"] }],
+    stock: 41,
+  },
+  {
+    id: "product-033",
+    title: "Wool Scarf",
+    description:
+      "A 12-inch wool scarf with a dry hand and fringed ends. Long enough to wrap once without swallowing a coat collar.",
+    price: 86.0,
+    category: "Accessories",
+    image: img("photo-1520903920243-00d872a2d1c9"),
+    variants: [{ name: "Color", options: ["Grey check", "Camel", "Navy"] }],
+    stock: 18,
+  },
+  {
+    id: "product-034",
+    title: "Daypack",
+    description:
+      "18-liter backpack with a padded laptop sleeve, hidden zipper pocket, and weather-resistant canvas.",
+    price: 168.0,
+    category: "Accessories",
+    image: img("photo-1553062407-98eeb64c6a62"),
+    variants: [{ name: "Color", options: ["Olive", "Black", "Sand"] }],
+    stock: 15,
+  },
+  {
+    id: "product-035",
+    title: "Ceramic Table Lamp",
+    description:
+      "Thrown ceramic lamp with a linen shade and a warm 2700K bulb. The glaze is speckled, never two quite the same.",
+    price: 186.0,
+    category: "Home",
+    image: img("photo-1507473880760-e72add74b6b4"),
+    variants: [{ name: "Glaze", options: ["Sand", "Moss", "Ink"] }],
+    stock: 11,
+  },
+  {
+    id: "product-036",
+    title: "Linen Throw",
+    description:
+      "Stonewashed linen throw with a soft drape for the sofa or the foot of the bed. Gets better with every wash.",
+    price: 96.0,
+    category: "Home",
+    image: img("photo-1505693416388-ac5ce068fe85"),
+    variants: [{ name: "Color", options: ["Flax", "Terracotta", "Sage"] }],
+    stock: 22,
+  },
+  {
+    id: "product-037",
+    title: "Oak Side Table",
+    description:
+      "Solid oak side table with a round top and a lower shelf. Finished in a hardwax oil that shows the grain.",
+    price: 320.0,
+    category: "Home",
+    image: img("photo-1532372320572-cda25653a26d"),
+    variants: [{ name: "Finish", options: ["Natural oak", "Smoked oak"] }],
+    stock: 5,
+  },
+  {
+    id: "product-038",
+    title: "Wool Area Rug",
+    description:
+      "Hand-tufted wool rug with a low pile and a quiet geometric field. Sized for a reading chair or bedside.",
+    price: 420.0,
+    category: "Home",
+    image: img("photo-1600166898405-89d7672bdffb"),
+    variants: [{ name: "Size", options: ["4x6", "5x8"] }],
+    stock: 4,
+  },
+  {
+    id: "product-039",
+    title: "Cedar & Smoke Candle",
+    description:
+      "Soy-blend candle in a reusable tumbler. Notes of cedar, smoke, and bitter orange. Burns about 45 hours.",
+    price: 36.0,
+    category: "Home",
+    image: img("photo-1603006905003-be475563bc59"),
+    variants: [{ name: "Scent", options: ["Cedar & smoke", "Fig leaf", "Sea salt"] }],
+    stock: 44,
+  },
+  {
+    id: "product-040",
+    title: "Round Wall Mirror",
+    description:
+      "24-inch round mirror with a thin oak frame. Honest, quiet, and large enough for an entryway.",
+    price: 158.0,
+    category: "Home",
+    image: img("photo-1618220179428-22790b461013"),
+    variants: [{ name: "Frame", options: ["Oak", "Black"] }],
+    stock: 9,
+  },
+  {
+    id: "product-041",
+    title: "Linen Throw Pillow",
+    description:
+      "Knife-edge linen pillow with a hidden zipper and a down-alternative insert. Pair two on a sofa or a bench.",
+    price: 58.0,
+    category: "Home",
+    image: img("photo-1584100936595-c0654b55a2e2"),
+    variants: [
+      { name: "Size", options: ["18x18", "12x20"] },
+      { name: "Color", options: ["Ivory", "Clay", "Forest"] },
+    ],
+    stock: 27,
+  },
+  {
+    id: "product-042",
+    title: "Oak Desk Tray",
+    description:
+      "A shallow oak tray for keys, pens, and a watch. Grooved edges keep small things from sliding off.",
+    price: 54.0,
+    category: "Home",
+    image: img("photo-1518455027359-f3f8164ba6bd"),
+    variants: [{ name: "Finish", options: ["Natural", "Blackened"] }],
+    stock: 19,
+  },
+  {
+    id: "product-043",
+    title: "Cast Iron Skillet",
+    description:
+      "Pre-seasoned 10-inch skillet that moves from stove to oven. The handle stays cool longer than you expect.",
+    price: 72.0,
+    category: "Kitchen",
+    image: img("photo-1556909114-f6e7ad7d3136"),
+    variants: [{ name: "Size", options: ["8 inch", "10 inch", "12 inch"] }],
+    stock: 23,
+  },
+  {
+    id: "product-044",
+    title: "Gooseneck Kettle",
+    description:
+      "Stovetop pour-over kettle with a precise spout and a thermometer lid. Brushed stainless, 1 liter.",
+    price: 68.0,
+    category: "Kitchen",
+    image: img("photo-1495474472287-4d71bcdd2085"),
+    variants: [{ name: "Finish", options: ["Stainless", "Matte black"] }],
+    stock: 16,
+  },
+  {
+    id: "product-045",
+    title: "Stoneware Mug Set",
+    description:
+      "Set of four 12-ounce mugs with a speckled glaze and a generous handle. Microwave and dishwasher safe.",
+    price: 64.0,
+    category: "Kitchen",
+    image: img("photo-1514228742587-6b1558fcca3d"),
+    variants: [{ name: "Glaze", options: ["Speckled white", "Moss", "Ink"] }],
+    stock: 31,
+  },
+  {
+    id: "product-046",
+    title: "Chef's Knife 8-inch",
+    description:
+      "A balanced 8-inch chef's knife in high-carbon steel with a walnut handle. Full tang, easy to hone.",
+    price: 142.0,
+    category: "Kitchen",
+    image: img("photo-1593618998160-e34014e67546"),
+    variants: [{ name: "Handle", options: ["Walnut", "Blackwood"] }],
+    stock: 12,
+  },
+  {
+    id: "product-047",
+    title: "Glass Storage Jars",
+    description:
+      "Set of three lidded glass jars for grains, coffee, and leftovers. Clear, gasketed, and stackable.",
+    price: 42.0,
+    category: "Kitchen",
+    image: img("photo-1585687773003-1fc2e919e21f"),
+    variants: [{ name: "Set", options: ["3-piece", "5-piece"] }],
+    stock: 38,
+  },
+  {
+    id: "product-048",
+    title: "Walnut Cutting Board",
+    description:
+      "Edge-grain walnut board with a juice groove and non-slip feet. Oil it twice a year and it will last.",
+    price: 88.0,
+    category: "Kitchen",
+    image: img("photo-1610701596007-11502861dcfa"),
+    variants: [{ name: "Size", options: ["Small", "Large"] }],
+    stock: 14,
+  },
+  {
+    id: "product-049",
+    title: "Natural Rubber Yoga Mat",
+    description:
+      "4mm natural rubber mat with a cotton top that does not shed. Grippy when damp, rolls tight for travel.",
+    price: 82.0,
+    category: "Sports",
+    image: img("photo-1601925260368-ae2f1fdf1dcb"),
+    variants: [{ name: "Color", options: ["Charcoal", "Clay", "Sage"] }],
+    stock: 20,
+  },
+  {
+    id: "product-050",
+    title: "Resistance Band Set",
+    description:
+      "Five loop bands with a cotton-canvas pouch and a simple program card. From mobility to heavy rows.",
+    price: 34.0,
+    category: "Sports",
+    image: img("photo-1517836357463-d25dfeac3438"),
+    variants: [{ name: "Pack", options: ["Light", "Full"] }],
+    stock: 45,
+  },
+  {
+    id: "product-051",
+    title: "Insulated Run Bottle",
+    description:
+      "500ml stainless bottle that keeps water cold through a long run. Narrow mouth, leak-proof cap, no plastic taste.",
+    price: 36.0,
+    category: "Sports",
+    image: img("photo-1602143407151-7111542de6e8"),
+    variants: [{ name: "Color", options: ["Steel", "Olive", "Sand"] }],
+    stock: 39,
+  },
+  {
+    id: "product-052",
+    title: "Adjustable Dumbbells",
+    description:
+      "A pair of dumbbells that adjust from 5 to 25 pounds with a twist collar. Compact enough for a closet gym.",
+    price: 219.0,
+    category: "Sports",
+    image: img("photo-1599058945522-28d584b6f14f"),
+    variants: [{ name: "Range", options: ["5–25 lb", "10–40 lb"] }],
+    stock: 8,
+  },
+  {
+    id: "product-053",
+    title: "Weighted Jump Rope",
+    description:
+      "PVC rope with turned-wood handles and a smooth bearing. Long enough to size for most adults.",
+    price: 28.0,
+    category: "Sports",
+    image: img("photo-1571019614242-c5c5dee9f50b"),
+    variants: [{ name: "Length", options: ["Standard", "Tall"] }],
+    stock: 26,
+  },
+  {
+    id: "product-054",
+    title: "Gentle Facial Cleanser",
+    description:
+      "A pH-balanced gel cleanser with glycerin and oat. Rinses clean without tightness, morning and night.",
+    price: 24.0,
+    category: "Beauty",
+    image: img("photo-1556228578-0d85b1a4d571"),
+    variants: [{ name: "Size", options: ["100 ml", "200 ml"] }],
+    stock: 37,
+  },
+  {
+    id: "product-055",
+    title: "Daily Moisturizer",
+    description:
+      "Light cream with squalane and ceramides. Absorbs quickly under sunscreen and does not pill under makeup.",
+    price: 32.0,
+    category: "Beauty",
+    image: img("photo-1571781926291-c477ebfd024b"),
+    variants: [{ name: "Size", options: ["50 ml", "100 ml"] }],
+    stock: 29,
+  },
+  {
+    id: "product-056",
+    title: "Beechwood Hair Brush",
+    description:
+      "Oval paddle brush with beechwood and rounded pins. Detangles wet hair without a static halo.",
+    price: 26.0,
+    category: "Beauty",
+    image: img("photo-1522335789203-aabd1fc37cb7"),
+    variants: [{ name: "Size", options: ["Travel", "Full"] }],
+    stock: 22,
+  },
+  {
+    id: "product-057",
+    title: "Botanical Body Oil",
+    description:
+      "Dry-touch body oil with jojoba, apricot kernel, and a quiet cedar-citrus scent. Apply to damp skin.",
+    price: 38.0,
+    category: "Beauty",
+    image: img("photo-1608248543803-ba4f8c70ae0b"),
+    variants: [{ name: "Scent", options: ["Cedar citrus", "Unscented"] }],
+    stock: 18,
+  },
+  {
+    id: "product-058",
+    title: "Tinted Lip Balm Set",
+    description:
+      "Three sheer tints in a tin. Beeswax and shea with a hint of color — clay, berry, and un-tinted.",
+    price: 22.0,
+    category: "Beauty",
+    image: img("photo-1586495777744-4413f210d18c"),
+    variants: [{ name: "Set", options: ["Sheer trio"] }],
+    stock: 0,
+  },
+];
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const out = join(root, "src/data/products.json");
+writeFileSync(out, JSON.stringify(products, null, 2) + "\n");
+console.log(`Wrote ${products.length} products to ${out}`);

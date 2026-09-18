@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+
+# Next.js
+.next
+out
+
+# Vite / Nitro leftovers
+dist
+.output
+.nitro
+.vercel
+.vinxi
+
+# Storybook
+storybook-static
+*storybook.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs and debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing / coverage
+coverage
+playwright-report
+test-results
+
+# OS / editor
+.DS_Store
+.idea
+.vscode
+*.swp
+
+# Platform preview
+.grok/preview.pid
+.grok/preview.log
+.grok/og-pending
+
+# Generated
+.turbo
