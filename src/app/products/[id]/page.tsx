@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/catalog/AddToCart";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { ProductGallery } from "@/components/catalog/ProductGallery";
 import { Badge } from "@/components/ui/Badge";
 import { getAllProducts, getProductById } from "@/lib/catalog";
 import { formatPrice, stockLabel, stockTone } from "@/lib/format";
@@ -41,15 +42,7 @@ export default async function ProductPage({ params }: PageProps) {
         </ol>
       </nav>
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-xl bg-surface shadow-border">
-          <img
-            src={product.image}
-            alt={product.title}
-            width={900}
-            height={900}
-            className="aspect-square w-full object-cover"
-          />
-        </div>
+        <ProductGallery product={product} />
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-2">
@@ -66,6 +59,11 @@ export default async function ProductPage({ params }: PageProps) {
             </p>
             <p className="max-w-xl text-base leading-7 text-muted-foreground">
               {product.description}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {product.stock > 0
+                ? `${product.stock} available`
+                : "Currently unavailable"}
             </p>
           </div>
           <AddToCart product={product} />

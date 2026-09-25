@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Outfit } from "next/font/google";
+import { CartProvider } from "@/lib/cart-provider";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
@@ -66,18 +67,21 @@ export default function RootLayout({
       <body className="min-h-dvh bg-background font-sans text-foreground">
         <PreviewHostBridge />
         <ThemeProvider>
-          <div className="flex min-h-dvh flex-col">
-            <Header />
-            {children}
-            <Footer />
-          </div>
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              className:
-                "bg-surface text-foreground shadow-border border-border",
-            }}
-          />
+          <CartProvider>
+            <div className="flex min-h-dvh flex-col">
+              <Header />
+              {children}
+              <Footer />
+            </div>
+            <Toaster
+              position="bottom-right"
+              richColors
+              toastOptions={{
+                className:
+                  "bg-surface text-foreground shadow-border border-border",
+              }}
+            />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

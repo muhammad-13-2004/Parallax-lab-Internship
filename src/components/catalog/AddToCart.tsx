@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { useCart } from "@/lib/cart-store";
+import { QuantitySelector } from "@/components/catalog/QuantitySelector";
+import { canAcceptAdd } from "@/lib/cart-machine";
+import { useCart } from "@/lib/cart-provider";
+import { notifyError, notifySuccess } from "@/lib/notify";
 import type { Product } from "@/types/product";
 
 type AddToCartProps = {
@@ -11,7 +13,8 @@ type AddToCartProps = {
 };
 
 export function AddToCart({ product }: AddToCartProps) {
-  const addItem = useCart((state) => state.addItem);
+  const { addItem, items } = useCart();
+  const [quantity, setQuantity] = useState(1);
   const [selected, setSelected] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     for (const variant of product.variants) {
@@ -27,22 +30,38 @@ export function AddToCart({ product }: AddToCartProps) {
   }, [product.variants, selected]);
 
   const outOfStock = product.stock <= 0;
+  const remaining = Math.max(0, product.stock);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (outOfStock) return;
-    addItem({
+    if (outOfStock) {
+      notifyError("Out of stock", `${product.title} is not available.`);
+      return;
+    }
+    const payload = {
       productId: product.id,
       title: product.title,
       price: product.price,
       image: product.image,
+      stock: product.stock,
       variantLabel: variantLabel || undefined,
-    });
-    toast.success(`${product.title} added to cart`);
+      quantity,
+    };
+    if (!canAcceptAdd(items, payload)) {
+      notifyError(
+        "Could not add to cart",
+        remaining > 0
+          ? `Only ${remaining} in stock, including items already in your cart.`
+          : "This item is out of stock.",
+      );
+      return;
+    }
+    addItem(payload);
+    notifySuccess("Added to cart", product.title);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {product.variants.map((variant) => (
         <fieldset key={variant.name} className="flex flex-col gap-2">
           <legend className="text-sm font-medium text-foreground">
@@ -83,6 +102,13 @@ export function AddToCart({ product }: AddToCartProps) {
           </div>
         </fieldset>
       ))}
+      <QuantitySelector
+        value={quantity}
+        stock={product.stock}
+        disabled={outOfStock}
+        onValidChange={setQuantity}
+        onInvalid={(message) => notifyError("Invalid quantity", message)}
+      />
       <Button type="submit" size="lg" disabled={outOfStock}>
         {outOfStock ? "Out of stock" : "Add to cart"}
       </Button>

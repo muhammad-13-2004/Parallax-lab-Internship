@@ -5,12 +5,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
-import { cartSubtotal, useCart } from "@/lib/cart-store";
+import { cartSubtotal, useCart } from "@/lib/cart-provider";
 import { formatPrice } from "@/lib/format";
+import { notifySuccess } from "@/lib/notify";
 
 export default function CheckoutPage() {
-  const items = useCart((state) => state.items);
-  const clear = useCart((state) => state.clear);
+  const { items, clear } = useCart();
   const [placed, setPlaced] = useState(false);
   const subtotal = cartSubtotal(items);
 
@@ -61,6 +61,7 @@ export default function CheckoutPage() {
           event.preventDefault();
           clear();
           setPlaced(true);
+          notifySuccess("Order received", "No payment was processed.");
         }}
       >
         <div className="grid gap-4 sm:grid-cols-2">

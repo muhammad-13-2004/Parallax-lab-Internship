@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { cartCount, useCart } from "@/lib/cart-store";
+import { cartCount, useCart } from "@/lib/cart-provider";
 import { cn } from "@/lib/cn";
 
 const nav = [
@@ -14,7 +14,7 @@ const nav = [
 ];
 
 export function Header() {
-  const items = useCart((state) => state.items);
+  const { items } = useCart();
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
