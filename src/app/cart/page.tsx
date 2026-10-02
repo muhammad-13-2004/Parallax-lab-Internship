@@ -5,24 +5,12 @@ import { Trash2 } from "lucide-react";
 import { QuantitySelector } from "@/components/catalog/QuantitySelector";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import {
-  canAcceptDecrease,
-  canAcceptIncrease,
-  canAcceptUpdate,
-} from "@/lib/cart-machine";
 import { cartCount, cartSubtotal, useCart } from "@/lib/cart-provider";
 import { formatPrice } from "@/lib/format";
-import { notifyError, notifySuccess } from "@/lib/notify";
+import { notifyError } from "@/lib/notify";
 
 export default function CartPage() {
-  const {
-    items,
-    isEmpty,
-    removeItem,
-    increaseQuantity,
-    decreaseQuantity,
-    updateQuantity,
-  } = useCart();
+  const { items, isEmpty, isPending, removeItem, updateQuantity } = useCart();
   const count = cartCount(items);
   const subtotal = cartSubtotal(items);
 
@@ -70,9 +58,7 @@ export default function CartPage() {
                     {item.title}
                   </Link>
                   {item.variantLabel ? (
-                    <p className="text-sm text-muted-foreground">
-                      {item.variantLabel}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{item.variantLabel}</p>
                   ) : null}
                   <p className="mt-1 tabular-nums">{formatPrice(item.price)}</p>
                 </div>
@@ -82,32 +68,11 @@ export default function CartPage() {
                     label={`Quantity for ${item.title}`}
                     value={item.quantity}
                     stock={item.stock}
+                    disabled={isPending(item.id)}
                     onValidChange={(next) => {
-                      if (next === item.quantity + 1) {
-                        if (!canAcceptIncrease(items, item.id)) {
-                          notifyError(
-                            "Invalid quantity",
-                            `Only ${item.stock} in stock.`,
-                          );
-                          return;
-                        }
-                        increaseQuantity(item.id);
-                        return;
-                      }
-                      if (next === item.quantity - 1) {
-                        if (!canAcceptDecrease(items, item.id)) return;
-                        decreaseQuantity(item.id);
-                        return;
-                      }
-                      if (!canAcceptUpdate(items, item.id, next)) {
-                        notifyError("Invalid quantity");
-                        return;
-                      }
-                      updateQuantity(item.id, next);
+                      void updateQuantity(item.id, next);
                     }}
-                    onInvalid={(message) =>
-                      notifyError("Invalid quantity", message)
-                    }
+                    onInvalid={(message) => notifyError("Invalid quantity", message)}
                   />
                   <p className="min-w-16 text-right font-medium tabular-nums">
                     {formatPrice(item.price * item.quantity)}
@@ -116,9 +81,9 @@ export default function CartPage() {
                     variant="ghost"
                     size="icon"
                     aria-label={`Remove ${item.title} from cart`}
+                    disabled={isPending(item.id)}
                     onClick={() => {
-                      removeItem(item.id);
-                      notifySuccess("Removed from cart", item.title);
+                      void removeItem(item.id);
                     }}
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
@@ -129,10 +94,7 @@ export default function CartPage() {
           </ul>
           <div className="flex flex-col gap-4 rounded-xl bg-surface p-5 shadow-border sm:flex-row sm:items-center sm:justify-between">
             <p className="text-lg">
-              Subtotal{" "}
-              <span className="font-medium tabular-nums">
-                {formatPrice(subtotal)}
-              </span>
+              Subtotal <span className="font-medium tabular-nums">{formatPrice(subtotal)}</span>
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button asChild variant="secondary" size="lg">

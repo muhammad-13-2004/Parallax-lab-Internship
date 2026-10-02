@@ -113,11 +113,21 @@ test("a signal-killed command is never reported as success", async () => {
   );
 });
 
-test("the CLI still runs when invoked through a symlinked path", async () => {
+test("the CLI still runs when invoked through a symlinked path", async (t) => {
   // node realpaths import.meta.url but not process.argv[1], so a raw comparison
   // turns the wrapper into a no-op that exits 0 without starting anything.
   const link = join(mkdtempSync(join(tmpdir(), "app-env-link-")), "scripts");
-  symlinkSync(join(projectRoot(), "scripts"), link);
+  try {
+    symlinkSync(join(projectRoot(), "scripts"), link);
+  } catch (error) {
+    // Windows without Developer Mode / admin rights: creating a symlink is
+    // EPERM. The condition under test is unreachable, not failing.
+    if (error?.code === "EPERM" || error?.code === "EACCES") {
+      t.skip("symlinks unavailable in this environment");
+      return;
+    }
+    throw error;
+  }
   const { stdout } = await execFileAsync(process.execPath, [
     join(link, "with-app-env.mjs"),
     process.execPath,

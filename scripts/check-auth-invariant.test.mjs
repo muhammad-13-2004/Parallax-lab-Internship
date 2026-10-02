@@ -95,11 +95,21 @@ test("the build side resolves the template's shipped app-env", () => {
   assert.equal(buildAuthEnabled(projectRoot(), { VITE_AUTH_ENABLED: "true" }), true);
 });
 
-test("the CLI reports rather than silently passing when run via a symlink", async () => {
+test("the CLI reports rather than silently passing when run via a symlink", async (t) => {
   // A check whose exit code is the whole signal must never no-op to 0 because
   // process.argv[1] came in through a symlinked path.
   const link = join(mkdtempSync(join(tmpdir(), "auth-invariant-link-")), "scripts");
-  symlinkSync(join(projectRoot(), "scripts"), link);
+  try {
+    symlinkSync(join(projectRoot(), "scripts"), link);
+  } catch (error) {
+    // Windows without Developer Mode / admin rights: creating a symlink is
+    // EPERM. The condition under test is unreachable, not failing.
+    if (error?.code === "EPERM" || error?.code === "EACCES") {
+      t.skip("symlinks unavailable in this environment");
+      return;
+    }
+    throw error;
+  }
   const error = await promisify(execFile)(process.execPath, [
     join(link, "check-auth-invariant.mjs"),
     "--dev-url",

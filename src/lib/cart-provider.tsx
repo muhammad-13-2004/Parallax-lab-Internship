@@ -2,6 +2,8 @@
 
 import { createActorContext } from "@xstate/react";
 import { useEffect, type ReactNode } from "react";
+import { notifyError, notifySuccess } from "@/lib/notify";
+import { runOptimisticCartMutation, type CartMutation } from "@/lib/cart-operations";
 import {
   cartCount,
   cartMachine,
@@ -56,10 +58,7 @@ function PersistAndHydrate() {
       actor.send({ type: "HYDRATE", items: stored });
     }
     const subscription = actor.subscribe((snapshot) => {
-      window.localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(snapshot.context.items),
-      );
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot.context.items));
     });
     return () => subscription.unsubscribe();
   }, [actor]);
@@ -79,20 +78,61 @@ export function CartProvider({ children }: { children: ReactNode }) {
 export function useCart() {
   const actor = CartActorContext.useActorRef();
   const items = CartActorContext.useSelector((snapshot) => snapshot.context.items);
+  const pending = CartActorContext.useSelector((snapshot) => snapshot.context.pending);
   const state = CartActorContext.useSelector((snapshot) => snapshot.value);
+
+  async function persistMutation(mutation: CartMutation) {
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(mutation),
+    });
+    if (!response.ok) throw new Error("Cart update was rejected");
+  }
+
+  async function updateQuantity(id: string, quantity: number) {
+    const result = await runOptimisticCartMutation(
+      actor,
+      { type: "UPDATE_QUANTITY", id, quantity },
+      persistMutation,
+    );
+    if (result === "saved") notifySuccess("Cart updated");
+    if (result === "failed") {
+      notifyError("Unable to update cart", "Your previous quantity has been restored.");
+    }
+    if (result === "invalid") notifyError("Invalid quantity");
+    return result;
+  }
+
+  async function removeItem(id: string) {
+    const result = await runOptimisticCartMutation(
+      actor,
+      { type: "REMOVE_ITEM", id },
+      persistMutation,
+    );
+    if (result === "saved") notifySuccess("Removed from cart");
+    if (result === "failed") {
+      notifyError("Unable to remove item", "Your previous cart has been restored.");
+    }
+    return result;
+  }
 
   return {
     items,
     state,
     isEmpty: state === "empty",
     addItem: (item: CartItemInput) => actor.send({ type: "ADD_ITEM", item }),
-    removeItem: (id: string) => actor.send({ type: "REMOVE_ITEM", id }),
-    increaseQuantity: (id: string) =>
-      actor.send({ type: "INCREASE_QUANTITY", id }),
-    decreaseQuantity: (id: string) =>
-      actor.send({ type: "DECREASE_QUANTITY", id }),
-    updateQuantity: (id: string, quantity: number) =>
-      actor.send({ type: "UPDATE_QUANTITY", id, quantity }),
+    isPending: (id: string) => Boolean(pending[id]),
+    removeItem,
+    increaseQuantity: (id: string) => {
+      const item = actor.getSnapshot().context.items.find((entry) => entry.id === id);
+      return item ? updateQuantity(id, item.quantity + 1) : Promise.resolve("invalid" as const);
+    },
+    decreaseQuantity: (id: string) => {
+      const item = actor.getSnapshot().context.items.find((entry) => entry.id === id);
+      return item ? updateQuantity(id, item.quantity - 1) : Promise.resolve("invalid" as const);
+    },
+    updateQuantity,
     clear: () => actor.send({ type: "CLEAR" }),
     getSnapshot: () => actor.getSnapshot(),
   };
