@@ -7,6 +7,7 @@ import { CatalogSkeleton } from "@/components/catalog/ProductCardSkeleton";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { fetchCatalog, filterProducts } from "@/lib/api";
+import { useInventoryStream } from "@/lib/inventory-client";
 import type { Product, ViewMode } from "@/types/product";
 
 const VIEW_KEY = "northline-view";
@@ -18,6 +19,7 @@ export function Catalog() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [view, setView] = useState<ViewMode>("grid");
+  const { products: liveInventory } = useInventoryStream();
 
   useEffect(() => {
     const stored = window.localStorage.getItem(VIEW_KEY);
@@ -42,9 +44,18 @@ export function Catalog() {
     return () => controller.abort();
   }, []);
 
+  const inventoryAwareProducts = useMemo(
+    () =>
+      products.map((product) => ({
+        ...product,
+        stock: liveInventory[product.id] ?? product.stock,
+      })),
+    [products, liveInventory],
+  );
+
   const results = useMemo(
-    () => filterProducts(products, query, category),
-    [products, query, category],
+    () => filterProducts(inventoryAwareProducts, query, category),
+    [inventoryAwareProducts, query, category],
   );
 
   function handleViewChange(next: ViewMode) {
@@ -84,7 +95,7 @@ export function Catalog() {
         view={view}
         onViewChange={handleViewChange}
         resultCount={status === "ready" ? results.length : 0}
-        totalCount={products.length}
+        totalCount={inventoryAwareProducts.length}
       />
 
       {status === "loading" ? <CatalogSkeleton layout={view} /> : null}

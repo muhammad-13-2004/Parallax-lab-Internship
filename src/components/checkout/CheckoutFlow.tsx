@@ -108,7 +108,22 @@ export function CheckoutFlow() {
     notifySuccess("Payment details saved", "No payment was processed.");
   }
 
-  function confirmOrder() {
+  async function confirmOrder() {
+    const validation = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "VALIDATE_CHECKOUT",
+        items: cartItems.map((item) => ({ id: item.id, quantity: item.quantity })),
+      }),
+    });
+
+    if (!validation.ok) {
+      const payload = (await validation.json().catch(() => ({}))) as { error?: string };
+      notifyError("Inventory changed", payload.error ?? "Please review your cart and try again.");
+      return;
+    }
+
     send({ type: "CONFIRM_ORDER" });
     if (actor.getSnapshot().matches("confirmation")) {
       clear();

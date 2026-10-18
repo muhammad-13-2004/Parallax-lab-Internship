@@ -10,11 +10,13 @@ import type { Product } from "@/types/product";
 
 type AddToCartProps = {
   product: Product;
+  liveStock?: number;
 };
 
-export function AddToCart({ product }: AddToCartProps) {
+export function AddToCart({ product, liveStock }: AddToCartProps) {
   const { addItem, items } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const currentStock = liveStock ?? product.stock;
   const [selected, setSelected] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     for (const variant of product.variants) {
@@ -29,8 +31,8 @@ export function AddToCart({ product }: AddToCartProps) {
       .join(" · ");
   }, [product.variants, selected]);
 
-  const outOfStock = product.stock <= 0;
-  const remaining = Math.max(0, product.stock);
+  const outOfStock = currentStock <= 0;
+  const remaining = Math.max(0, currentStock);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -43,7 +45,7 @@ export function AddToCart({ product }: AddToCartProps) {
       title: product.title,
       price: product.price,
       image: product.image,
-      stock: product.stock,
+      stock: currentStock,
       variantLabel: variantLabel || undefined,
       quantity,
     };
@@ -104,7 +106,7 @@ export function AddToCart({ product }: AddToCartProps) {
       ))}
       <QuantitySelector
         value={quantity}
-        stock={product.stock}
+        stock={currentStock}
         disabled={outOfStock}
         onValidChange={setQuantity}
         onInvalid={(message) => notifyError("Invalid quantity", message)}

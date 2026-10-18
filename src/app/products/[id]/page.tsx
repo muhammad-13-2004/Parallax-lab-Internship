@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AddToCart } from "@/components/catalog/AddToCart";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { ProductGallery } from "@/components/catalog/ProductGallery";
-import { Badge } from "@/components/ui/Badge";
+import { ProductDetailState } from "@/components/inventory/ProductDetailState";
 import { getAllProducts, getProductById } from "@/lib/catalog";
-import { formatPrice, stockLabel, stockTone } from "@/lib/format";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -43,31 +41,7 @@ export default async function ProductPage({ params }: PageProps) {
       </nav>
       <div className="grid gap-10 lg:grid-cols-2">
         <ProductGallery product={product} />
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap gap-2">
-              <Badge>{product.category}</Badge>
-              <Badge tone={stockTone(product.stock)}>
-                {stockLabel(product.stock)}
-              </Badge>
-            </div>
-            <h1 className="font-display text-4xl font-medium tracking-tight">
-              {product.title}
-            </h1>
-            <p className="text-2xl font-medium tabular-nums">
-              {formatPrice(product.price)}
-            </p>
-            <p className="max-w-xl text-base leading-7 text-muted-foreground">
-              {product.description}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {product.stock > 0
-                ? `${product.stock} available`
-                : "Currently unavailable"}
-            </p>
-          </div>
-          <AddToCart product={product} />
-        </div>
+        <ProductDetailState product={product} />
       </div>
       {related.length > 0 ? (
         <section className="mt-16" aria-labelledby="related-heading">
